@@ -14,7 +14,8 @@ function getIngredientsArray(pizza) {
     });
 
     return result;
-}
+    
+} 
 
    %>
 <div class="col-md-6 col-lg-4 pizza-card">
@@ -34,8 +35,16 @@ function getIngredientsArray(pizza) {
                 <%= getIngredientsArray(pizza).join(", ") %>
             </div>
         </div>
-
-        <!-- Перед тим щоб показати кнопку необхідно переконатися, що піца має великий розмір -->
-        <button class="btn btn-primary buy-big">Купити велику</button>
+        <div class="buy-buttons">
+            <div>
+                <% if('small_size' in pizza) { %>
+                <button class="btn btn-primary buy-small">Купити малу</button>
+                <% } %>
+                <!-- Перед тим щоб показати кнопку необхідно переконатися, що піца має великий розмір -->
+                <% if('big_size' in pizza) { %>
+                <button class="btn btn-primary buy-big">Купити велику</button>
+                <% } %>
+            </div>
+        </div>
     </div>
 </div>

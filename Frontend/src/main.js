@@ -10,6 +10,10 @@ $(function(){
 
     PizzaCart.initialiseCart();
     PizzaMenu.initialiseMenu();
-
+    $('.filter .selects span').each(function(){
+        $(this).click(function(){
+            PizzaMenu.filterPizza($(this))
+        });
+    })
 
 });

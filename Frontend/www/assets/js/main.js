@@ -184,9 +184,9 @@ module.exports = pizza_info;
 var ejs = require('ejs');
 
 
-exports.PizzaMenu_OneItem = ejs.compile("<%\n\nfunction getIngredientsArray(pizza) {\n    //Отримує вміст піци\n    var content = pizza.content;\n    var result = [];\n\n    //Object.keys повертає масив ключів в об’єкті JavaScript\n\n    Object.keys(content).forEach(function(key){\n\n        //a.concat(b) створює спільний масив із масивів a та b\n        result = result.concat(content[key]);\n    });\n\n    return result;\n}\n\n   %>\n<div class=\"col-md-6 col-lg-4 pizza-card\">\n    <div class=\"thumbnail\">\n        <img class=\"pizza-icon\" src=\"<%= pizza.icon %>\" alt=\"Pizza\">\n\n        <% if(pizza.is_new) { %>\n        <span class=\"label label-danger\">Нова</span>\n        <% } else if(pizza.is_popular) {%>\n        <span class=\"label label-success\">Популярна</span>\n        <% } %>\n\n        <div class=\"caption\">\n            <span class=\"title\"><%= pizza.title %></span>\n            <div class=\"type\"><%= pizza.type %></div>\n            <div class=\"description\">\n                <%= getIngredientsArray(pizza).join(\", \") %>\n            </div>\n        </div>\n\n        <!-- Перед тим щоб показати кнопку необхідно переконатися, що піца має великий розмір -->\n        <button class=\"btn btn-primary buy-big\">Купити велику</button>\n    </div>\n</div>");
+exports.PizzaMenu_OneItem = ejs.compile("<%\r\n\r\nfunction getIngredientsArray(pizza) {\r\n    //Отримує вміст піци\r\n    var content = pizza.content;\r\n    var result = [];\r\n\r\n    //Object.keys повертає масив ключів в об’єкті JavaScript\r\n\r\n    Object.keys(content).forEach(function(key){\r\n\r\n        //a.concat(b) створює спільний масив із масивів a та b\r\n        result = result.concat(content[key]);\r\n    });\r\n\r\n    return result;\r\n    \r\n} \r\n\r\n   %>\r\n<div class=\"col-md-6 col-lg-4 pizza-card\">\r\n    <div class=\"thumbnail\">\r\n        <img class=\"pizza-icon\" src=\"<%= pizza.icon %>\" alt=\"Pizza\">\r\n\r\n        <% if(pizza.is_new) { %>\r\n        <span class=\"label label-danger\">Нова</span>\r\n        <% } else if(pizza.is_popular) {%>\r\n        <span class=\"label label-success\">Популярна</span>\r\n        <% } %>\r\n\r\n        <div class=\"caption\">\r\n            <span class=\"title\"><%= pizza.title %></span>\r\n            <div class=\"type\"><%= pizza.type %></div>\r\n            <div class=\"description\">\r\n                <%= getIngredientsArray(pizza).join(\", \") %>\r\n            </div>\r\n        </div>\r\n        <div class=\"buy-buttons\">\r\n            <div>\r\n                <% if('small_size' in pizza) { %>\r\n                <button class=\"btn btn-primary buy-small\">Купити малу</button>\r\n                <% } %>\r\n                <!-- Перед тим щоб показати кнопку необхідно переконатися, що піца має великий розмір -->\r\n                <% if('big_size' in pizza) { %>\r\n                <button class=\"btn btn-primary buy-big\">Купити велику</button>\r\n                <% } %>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>");
 
-exports.PizzaCart_OneItem = ejs.compile("<div>\n    <%= pizza.title %> (<%= size %>)\n    <div>Ціна: <%= pizza[size].price %> грн.</div>\n    <div>\n        <button class=\"btn btn-danger minus\">-</button>\n        <span class=\"label label-default\"><%= quantity %></span>\n        <button class=\"btn btn-success plus\">+</button>\n    </div>\n</div>");
+exports.PizzaCart_OneItem = ejs.compile("<div>\r\n    <%= pizza.title %> (<%= size %>)\r\n    <div>Ціна: <%= pizza[size].price %> грн.</div>\r\n    <div>\r\n        <button class=\"btn btn-danger minus\">-</button>\r\n        <span class=\"label label-default\"><%= quantity %></span>\r\n        <button class=\"btn btn-success plus\">+</button>\r\n        <button class=\"btn btn-default remove\">x</button>\r\n    </div>\r\n</div>");
 
 },{"ejs":6}],3:[function(require,module,exports){
 /**
@@ -201,7 +201,11 @@ $(function(){
 
     PizzaCart.initialiseCart();
     PizzaMenu.initialiseMenu();
-
+    $('.filter .selects span').each(function(){
+        $(this).click(function(){
+            PizzaMenu.filterPizza($(this))
+        });
+    })
 
 });
 },{"./Pizza_List":1,"./pizza/PizzaCart":4,"./pizza/PizzaMenu":5}],4:[function(require,module,exports){
@@ -224,14 +228,22 @@ var $cart = $("#cart");
 
 function addToCart(pizza, size) {
     //Додавання однієї піци в кошик покупок
-
-    //Приклад реалізації, можна робити будь-яким іншим способом
-    Cart.push({
-        pizza: pizza,
-        size: size,
-        quantity: 1
+    var contains = false;
+    Cart.forEach(function(item){
+        if(item.pizza==pizza&&item.size==size){
+            item.quantity+=1;
+            contains = true;
+            return;
+        }
     });
-
+    //Приклад реалізації, можна робити будь-яким іншим способом
+    if(!contains){
+        Cart.push({
+            pizza: pizza,
+            size: size,
+            quantity: 1
+        });
+    }
     //Оновити вміст кошика на сторінці
     updateCart();
 }
@@ -239,7 +251,9 @@ function addToCart(pizza, size) {
 function removeFromCart(cart_item) {
     //Видалити піцу з кошика
     //TODO: треба зробити
-
+    Cart = jQuery.grep(Cart, function(value) {
+    return value != cart_item;
+});
     //Після видалення оновити відображення
     updateCart();
 }
@@ -263,16 +277,35 @@ function updateCart() {
 
     //Очищаємо старі піци в кошику
     $cart.html("");
-
+    var sum=0;
     //Онволення однієї піци
     function showOnePizzaInCart(cart_item) {
         var html_code = Templates.PizzaCart_OneItem(cart_item);
 
         var $node = $(html_code);
-
+        sum+=cart_item.quantity*cart_item.pizza[cart_item.size].price;
         $node.find(".plus").click(function(){
             //Збільшуємо кількість замовлених піц
             cart_item.quantity += 1;
+            
+            //Оновлюємо відображення
+            updateCart();
+        });
+        
+        $node.find(".minus").click(function(){
+            //Збільшуємо кількість замовлених піц
+            if(cart_item.quantity==1){
+                removeFromCart(cart_item);
+            }else{
+                cart_item.quantity -= 1;
+            }
+            //Оновлюємо відображення
+            updateCart();
+        });
+        
+        $node.find(".remove").click(function(){
+            //Збільшуємо кількість замовлених піц
+            removeFromCart(cart_item);
 
             //Оновлюємо відображення
             updateCart();
@@ -282,7 +315,13 @@ function updateCart() {
     }
 
     Cart.forEach(showOnePizzaInCart);
-
+    $('#side-panel #bottom .sum span').text(sum);
+    
+    $('#side-panel .clear-cart').click(function(){
+        Cart=[];
+        updateCart();
+    });
+    $('#side-panel .order span').text(Cart.length);
 }
 
 exports.removeFromCart = removeFromCart;
@@ -324,19 +363,33 @@ function showPizzaList(list) {
     }
 
     list.forEach(showOnePizza);
+    $('.filter .title span').text(list.length);
 }
 
 function filterPizza(filter) {
+    console.log(filter);
     //Масив куди потраплять піци які треба показати
     var pizza_shown = [];
-
+    
     Pizza_List.forEach(function(pizza){
         //Якщо піка відповідає фільтру
         //pizza_shown.push(pizza);
-
+        switch(filter.attr('data-type')){
+            case "all":
+                pizza_shown.push(pizza);
+                break;
+            case "vega":
+                if(!('ocean' in pizza.content || 'meat' in pizza.content || 'chicken' in pizza.content)){
+                    pizza_shown.push(pizza);
+                }
+                break;
+            default:
+                if(filter.attr('data-type') in pizza.content){
+                    pizza_shown.push(pizza);
+                }
+        }
         //TODO: зробити фільтри
     });
-
     //Показати відфільтровані піци
     showPizzaList(pizza_shown);
 }
@@ -345,6 +398,8 @@ function initialiseMenu() {
     //Показуємо усі піци
     showPizzaList(Pizza_List)
 }
+
+
 
 exports.filterPizza = filterPizza;
 exports.initialiseMenu = initialiseMenu;
@@ -874,6 +929,10 @@ Template.prototype = {
       , d = this.opts.delimiter;
 
     if (matches && matches.length) {
+      if (this.opts.compileDebug && this.opts.filename) {
+        this.source =  '    ; __lines = ' + JSON.stringify(this.templateText) + '\n';
+        this.source += '    ; __filename = "' + this.opts.filename.replace(/\\/g,  '/') + '"\n';
+      }
       matches.forEach(function (line, index) {
         var opening
           , closing
@@ -1057,6 +1116,12 @@ Template.prototype = {
     }
   }
 };
+
+/*
+ * Export the internal function for escaping XML so people
+ * can use for manual escaping if needed
+ * */
+exports.escapeXML = utils.escapeXML;
 
 /**
  * Express.js support.
@@ -1251,7 +1316,7 @@ module.exports={
     "engine",
     "ejs"
   ],
-  "version": "2.4.1",
+  "version": "2.4.2",
   "author": {
     "name": "Matthew Eernisse",
     "email": "mde@fleegix.org",
@@ -1290,16 +1355,17 @@ module.exports={
   },
   "scripts": {
     "test": "mocha",
+    "sample": "npm install express && node sample/index.js",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha",
     "doc": "rimraf out && jsdoc -c jsdoc.json lib/* docs/jsdoc/*",
     "devdoc": "rimraf out && jsdoc -p -c jsdoc.json lib/* docs/jsdoc/*"
   },
-  "_id": "ejs@2.4.1",
-  "_shasum": "82e15b1b2a1f948b18097476ba2bd7c66f4d1566",
-  "_resolved": "https://registry.npmjs.org/ejs/-/ejs-2.4.1.tgz",
+  "_id": "ejs@2.4.2",
+  "_shasum": "7057eb4812958fb731841cd9ca353343efe597b1",
+  "_resolved": "https://registry.npmjs.org/ejs/-/ejs-2.4.2.tgz",
   "_from": "ejs@>=2.4.1 <3.0.0",
-  "_npmVersion": "2.10.1",
-  "_nodeVersion": "0.12.4",
+  "_npmVersion": "2.15.1",
+  "_nodeVersion": "4.4.4",
   "_npmUser": {
     "name": "mde",
     "email": "mde@fleegix.org"
@@ -1315,8 +1381,12 @@ module.exports={
     }
   ],
   "dist": {
-    "shasum": "82e15b1b2a1f948b18097476ba2bd7c66f4d1566",
-    "tarball": "http://registry.npmjs.org/ejs/-/ejs-2.4.1.tgz"
+    "shasum": "7057eb4812958fb731841cd9ca353343efe597b1",
+    "tarball": "https://registry.npmjs.org/ejs/-/ejs-2.4.2.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/ejs-2.4.2.tgz_1464117640663_0.8193834638223052"
   },
   "directories": {},
   "readme": "ERROR: No README data found!"
@@ -1562,6 +1632,9 @@ var currentQueue;
 var queueIndex = -1;
 
 function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
     draining = false;
     if (currentQueue.length) {
         queue = currentQueue.concat(queue);

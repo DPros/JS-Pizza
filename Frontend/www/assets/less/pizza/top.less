@@ -1,0 +1,61 @@
+
+#top-panel {
+    padding-left: 120px;
+    top: 0;
+    position: fixed;
+    opacity: 0.8;
+    background-color: black;
+    z-index: 1;
+    width: 100%;
+    color: wheat;
+    .content{
+        *{
+            padding: 10px;
+        }
+        margin-right: @cart-width;
+        .top{    
+            border-bottom: 1px solid grey;
+            button{
+                float: right;
+                margin: -7px;
+                background-color: orange;
+            }
+        }
+    }
+    
+}
+#emblem{
+    left: 10px;
+    display: block;
+    background-color: orange;
+    position: fixed;
+    z-index: 5;
+    text-align: center;
+    font-size: 30px;
+    float: left;
+    color: white;
+    width: 100px;
+    top: 0;
+    height: 100px;
+    
+}
+
+#discount {
+    background-color: darkorange;
+    color: white;
+    width: 100px;
+    text-align: center;
+    position: fixed;
+    bottom: 0px;
+    padding: 15px;
+    left: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 5;
+    .discount {
+        border-top: 2px dotted darkred;
+    }
+    &:hover{
+        opacity: 0;
+    }
+}

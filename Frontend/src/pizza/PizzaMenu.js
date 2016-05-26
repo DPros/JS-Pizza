@@ -29,19 +29,33 @@ function showPizzaList(list) {
     }
 
     list.forEach(showOnePizza);
+    $('.filter .title span').text(list.length);
 }
 
 function filterPizza(filter) {
+    console.log(filter);
     //Масив куди потраплять піци які треба показати
     var pizza_shown = [];
-
+    
     Pizza_List.forEach(function(pizza){
         //Якщо піка відповідає фільтру
         //pizza_shown.push(pizza);
-
+        switch(filter.attr('data-type')){
+            case "all":
+                pizza_shown.push(pizza);
+                break;
+            case "vega":
+                if(!('ocean' in pizza.content || 'meat' in pizza.content || 'chicken' in pizza.content)){
+                    pizza_shown.push(pizza);
+                }
+                break;
+            default:
+                if(filter.attr('data-type') in pizza.content){
+                    pizza_shown.push(pizza);
+                }
+        }
         //TODO: зробити фільтри
     });
-
     //Показати відфільтровані піци
     showPizzaList(pizza_shown);
 }
@@ -50,6 +64,8 @@ function initialiseMenu() {
     //Показуємо усі піци
     showPizzaList(Pizza_List)
 }
+
+
 
 exports.filterPizza = filterPizza;
 exports.initialiseMenu = initialiseMenu;
