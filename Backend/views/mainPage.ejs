@@ -1,0 +1,50 @@
+<% include common/header.ejs %>
+
+<div id="side-panel">
+        <div class="row top">
+            <div class="order col-xs-7">Замовлення <span>0</span></div>
+            <div class="col-xs-5 clear-cart">Очистити замовлення</div>
+        </div>
+        <div id="cart">
+        </div>
+        <div id="bottom">
+            <div class="col-md-6">Сума замовлення</div>
+            <div class="col-md-6 sum"><span>0</span> грн</div>
+            <button class="btn btn-success order-btn">Замовити</button>
+            <a class="btn btn-success edit-btn" href="http://localhost:5050">Редагувати замовлення</a>
+        </div>
+    </div>
+    <div id="content" class="container-fluid">
+        <div class="filter">
+            <div class="title">Усі піци <span>8</span></div>
+            <div class="selects">
+                <span data-type="all">Усі піци</span>
+                <span data-type="meat">М'ясні</span>
+                <span data-type="pineapple">З ананасами</span>
+                <span data-type="mushroom">З грибами</span>
+                <span data-type="ocean">З морепродуктами</span>
+                <span data-type="vega">Вегетаріанські</span>
+            </div>
+        </div>
+        <div class="row" id="pizza_list">
+        </div>
+    </div>
+    <div id="order-page">
+        <form id="order-form" data-toggle="validator" action="localhost:5050/api/create-order/" method="post" role="form">
+            <div class="form-group">
+                <label for="input-name" class="control-label">Ім’я</label>
+                <input type="text" class="form-control" id="input-name" placeholder="Ім'я, Прізвище" required pattern="[а-яА-ЯіїІЇ\s]+" data-error="Введіть лише своє ім’я"/>
+            </div>
+            <div class="form-group">
+                <label for="input-tel" class="control-label">Телефон</label>
+                <input type="text" class="form-control" id="input-tel" placeholder="Номер телефону" required data-error="Введіть номер телефону у форматі 0123456789" pattern="0[0-9]{9}"/>
+            </div>
+            <div class="form-group">
+                <label for="input-address" class="control-label">Адреса</label>
+                <input type="text" class="form-control" id="input-address" placeholder="Адреса доставки" required/>
+            </div>
+            <button type="submit">Замовити</button>
+        </form>
+    </div>
+
+<% include common/footer.ejs %>
