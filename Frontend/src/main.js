@@ -8,6 +8,7 @@ $(function(){
     var PizzaMenu = require('./pizza/PizzaMenu');
     var PizzaCart = require('./pizza/PizzaCart');
     var API = require('./API');
+    var map = require('./map');
     
     PizzaCart.initialiseCart();
     PizzaMenu.initialiseMenu();
@@ -32,4 +33,5 @@ $(function(){
         $('#side-panel .edit-btn').show();
         $('#order-page').show();
     });
+   map.initialize(); 
 });
